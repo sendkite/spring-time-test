@@ -54,41 +54,33 @@
     <script>
         function savePost() {
             const contents = $("#content").val();
-            console.log(contents);
-            const result = confirm("저장된 메시지를 확인하시겠어요?");
-            if(result) {
-                const data = {'contents': contents}
-                $.ajax({
-                    type:"POST",
-                    url:"/api/contents",
-                    contentType: "application/json",
-                    data:JSON.stringify(data),
-                    success:(obj) => {
-                        alert("성공")
-                        getPost();
-                    },
-                    error:(request, status, error) => {
-                        alert(error);
-                    }
-                })
-            } else {
-                return false;
-            }
-        }
-
-        function getPost() {
-            $("#article").empty();
+            const data = {'contents': contents}
             $.ajax({
-                type:"GET",
-                url:"/api/contents",
-                data:{},
-                success:(obj) => {
-                    for (let i = 0; i < obj.length; i++) {
-                        const contents = obj["contents"];
-                        $("#article").text(contents);
+                type: "POST",
+                url: "/api/contents",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: (obj) => {
+                    $("#content").val('');
+                    if (confirm("저장된 메시지를 확인하시겠어요?")) {
+                        getPost(obj['id']);
                     }
                 },
-                error:(request, status, error) => {
+                error: (request, status, error) => {
+                    alert(error);
+                }
+            })
+        }
+
+        function getPost(id) {
+            $.ajax({
+                type: "GET",
+                url: `/api/contents/${id}`,
+                contentType: "application/json",
+                success: (obj) => {
+                    $('#article').html(obj['contents']);
+                },
+                error: (request, status, error) => {
                     alert(error)
                 }
             })
